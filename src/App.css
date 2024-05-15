@@ -25,5 +25,12 @@ body {
   position: absolute;
   bottom: 10px;
   left: 10px;
-  font-size: x-large;
+  font-size: large;
+}
+
+.hud-buttons {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: large;
 }

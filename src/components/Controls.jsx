@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useThree } from '@react-three/fiber'
-import { DragControls, OrbitControls, TransformControls } from '@react-three/drei'
+import { OrbitControls, TransformControls } from '@react-three/drei'
 import { useSnapshot } from 'valtio'
 
 const Controls = ({ state, modes }) => {
@@ -16,14 +16,17 @@ const Controls = ({ state, modes }) => {
           object={scene.getObjectByName(snap.current)} 
           mode={modes[snap.mode]}
           showX={modes[snap.mode] == "rotate" ? false : true}
+          showY={modes[snap.mode] == "translate" ? false : true}
           showZ={modes[snap.mode] == "rotate" ? false : true}
         />
       )}
       {/* makeDefault makes the controls known to r3f, now transform-controls can auto-disable them when active */}
       <OrbitControls
         makeDefault 
-        minPolarAngle={0} 
-        maxPolarAngle={Math.PI / 1.75}
+        minPolarAngle={0.0} 
+        maxPolarAngle={Math.PI / 2.75}
+        minDistance={2.5}
+        maxDistance={8}
       />
     </>
   )
