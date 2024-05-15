@@ -18,6 +18,9 @@ const Controls = ({ state, modes }) => {
           showX={modes[snap.mode] == "rotate" ? false : true}
           showY={modes[snap.mode] == "translate" || modes[snap.mode] == "scale" ? false : true}
           showZ={modes[snap.mode] == "rotate" ? false : true}
+          rotationSnap={Math.PI/4}
+          translationSnap={0.1}
+          scaleSnap={0.1}
         />
       )}
       {/* makeDefault makes the controls known to r3f, now transform-controls can auto-disable them when active */}

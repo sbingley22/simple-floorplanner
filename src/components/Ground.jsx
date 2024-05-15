@@ -14,7 +14,7 @@ const Ground = ({ placeObject, placementMode }) => {
     <>
       <Plane 
         position-y={-0.001}
-        scale={[scale * 0.75, scale, 1]}
+        scale={[scale * 0.9, scale, 1]}
         rotation-x={-Math.PI/2} 
         material-color="#998877"
         receiveShadow

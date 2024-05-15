@@ -8,6 +8,7 @@ import Item from "./Item"
 import { button, useControls } from "leva"
 import Ground from "./Ground"
 import Room from "./Room"
+import { Environment } from "@react-three/drei"
 
 // Reactive state model, using Valtio ...
 const modes = ['translate', 'rotate', 'scale']
@@ -19,11 +20,10 @@ const Floorplanner = () => {
   const [hudText, setHudText] = useState("")
 
   const [placementMode, setPlacementMode] = useState(null)
-  const [items, setItems] = useState([{ id: uuidv4(), pos: [0,0,0], name: "file_cabinet" }])
+  const [items, setItems] = useState([{ id: uuidv4(), pos: [4,0,0], name: "door" }])
   const [rooms, setRooms] = useState([{ id: uuidv4(), pos: [0,0,0] }])
 
   //Items
-
   const placeObject = (e) => {
     if (!placementMode) return
     
@@ -71,7 +71,6 @@ const Floorplanner = () => {
   }
 
   //Rooms
-
   const addRoomPlacement = () => {
     state.current = null
     setPlacementMode("room")
@@ -106,14 +105,21 @@ const Floorplanner = () => {
   }
 
   // Leva Controls
-  const { trimWalls, wallColor } = useControls('Rooms',
+  const { trimWalls, floorColor, wallColor } = useControls('Rooms',
     {
       "Add Room": button(() => {
         addRoomPlacement()
       }),
+      "Add Door": button(() => {
+        addItemPlacement("door")
+      }),
       trimWalls: {
         label: "Trim Walls",
-        value: false
+        value: true
+      },
+      floorColor: {
+        label: "Floor Color",
+        value: '#BBAAAA'
       },
       wallColor: {
         label: "Walls Color",
@@ -125,11 +131,71 @@ const Floorplanner = () => {
   )
   useControls('Items',
     {
+      "Bed": button(() => {
+        addItemPlacement("bed")
+      }),
+      "Cabinet": button(() => {
+        addItemPlacement("cabinet")
+      }),
+      "Cabinet Tall": button(() => {
+        addItemPlacement("cabinet_tall")
+      }),
+      "Computer Desk": button(() => {
+        addItemPlacement("computer_desk")
+      }),
+      "Cooker": button(() => {
+        addItemPlacement("cooker")
+      }),
+      "Desk": button(() => {
+        addItemPlacement("desk")
+      }),
       "File Cabinet": button(() => {
         addItemPlacement("file_cabinet")
       }),
+      "Footstool": button(() => {
+        addItemPlacement("footstool")
+      }),
       "Office Chair": button(() => {
         addItemPlacement("office_chair")
+      }),
+      "Plant Pot": button(() => {
+        addItemPlacement("plantpot1")
+      }),
+      "Plant Pot 2": button(() => {
+        addItemPlacement("plantpot2")
+      }),
+      "Refridgerator": button(() => {
+        addItemPlacement("refridgerator")
+      }),
+      "Shrubs": button(() => {
+        addItemPlacement("shrubs")
+      }),
+      "Sink": button(() => {
+        addItemPlacement("sink")
+      }),
+      "Sofa": button(() => {
+        addItemPlacement("sofa")
+      }),
+      "Toilet": button(() => {
+        addItemPlacement("toilet")
+      }),
+      "Tree": button(() => {
+        addItemPlacement("tree1")
+      }),
+      "Tree 2": button(() => {
+        addItemPlacement("tree2")
+      }),
+      "TV Stand": button(() => {
+        addItemPlacement("tv_stand")
+      }),
+      "Vending Machine": button(() => {
+        addItemPlacement("vending_machine")
+      }),
+      "Washing Machine": button(() => {
+        addItemPlacement("washing_machine")
+      }),
+      "Wildflower": button(() => {
+        addItemPlacement("wildflower")
       }),
     },
     { collapsed: true}, 
@@ -189,30 +255,45 @@ const Floorplanner = () => {
         shadows
       >
         <Suspense>
+
           <Controls state={state} modes={modes} />
-          <ambientLight intensity={0.3} />
-          <directionalLight intensity={0.9} position={[1,8,1]} castShadow />
+
+          <Environment 
+            preset="forest" 
+            background={true} 
+            backgroundBlurriness={0.0}
+            backgroundIntensity={1} 
+            ground={true}
+          />
+          <directionalLight 
+            intensity={2} 
+            position={[1,8,1]} 
+            color={"#FFAAAA"} 
+            castShadow 
+          />
           
           <Ground placeObject={placeObject} placementMode={placementMode} />
           
           {items.map(item=>(
-            <Item 
+            <Item
               key={item.id}
               id={item.id}
-              name={item.name} 
+              name={item.name}
               pos={item.pos}
               state={state}
             />
           ))}
 
           {rooms.map(room=>(
-            <Room 
+            <Room
               key={room.id}
               id={room.id}
               pos={room.pos}
               state={state}
               trimWalls={trimWalls}
               color={wallColor}
+              floorColor={floorColor}
+              placementMode={placementMode}
             />
           ))}
 
