@@ -3,21 +3,24 @@
 import { Box } from "@react-three/drei"
 import { useRef } from "react"
 
-const Room = ({ id, pos, state }) => {
+const Room = ({ id, pos, state, trimWalls, color }) => {
   const group = useRef()
-  const color = "#DDDDAA"
 
   const meshClicked = (e) => {
     //console.log(props.state.current)
     e.stopPropagation()
     state.current = id
+    state.label = "room"
   }
 
   const deselect = () => {
     state.current = null
   }
 
-  const scale = 2
+  const scale = 4
+  const wallThickness = scale * 0.05
+  const wallWidth = scale * 2.05
+  const wallHeight = trimWalls ? 1 : 4
 
   return (
     <group    
@@ -27,34 +30,34 @@ const Room = ({ id, pos, state }) => {
       position={pos}
       onClick={meshClicked}
       onPointerMissed={deselect}
-      scale={0.9}
+      scale-y={wallHeight}
     >
       <Box
         position-x={-scale}
-        scale-x={scale * 0.1}
-        scale-z={scale * 2}
+        scale-x={wallThickness}
+        scale-z={wallWidth}
         castShadow
       >
         <meshStandardMaterial color={color} castShadow />
       </Box>
       <Box
         position-x={scale}
-        scale-x={scale * 0.1}
-        scale-z={scale * 2}
+        scale-x={wallThickness}
+        scale-z={wallWidth}
       >
         <meshStandardMaterial color={color} />
       </Box>
       <Box
         position-z={-scale}
-        scale-x={scale * 2}
-        scale-z={scale * 0.1}
+        scale-x={wallWidth}
+        scale-z={wallThickness}
       >
         <meshStandardMaterial color={color} />
       </Box>
       <Box
         position-z={scale}
-        scale-x={scale * 2}
-        scale-z={scale * 0.1}
+        scale-x={wallWidth}
+        scale-z={wallThickness}
       >
         <meshStandardMaterial color={color} />
       </Box>

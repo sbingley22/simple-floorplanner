@@ -18,6 +18,8 @@ const Item = ({ id, name, pos, state }) => {
     //console.log(props.state.current)
     e.stopPropagation()
     state.current = id
+    state.label = name
+    if (state.mode == 2) state.mode = 0
   }
 
   const deselect = () => {

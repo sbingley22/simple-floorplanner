@@ -11,7 +11,7 @@ import Room from "./Room"
 
 // Reactive state model, using Valtio ...
 const modes = ['translate', 'rotate', 'scale']
-const state = proxy({ current: null, mode: 1 })
+const state = proxy({ current: null, mode: 1, label: null })
 
 const Floorplanner = () => {
   const canvasRef = useRef()
@@ -22,14 +22,26 @@ const Floorplanner = () => {
   const [items, setItems] = useState([{ id: uuidv4(), pos: [0,0,0], name: "file_cabinet" }])
   const [rooms, setRooms] = useState([{ id: uuidv4(), pos: [0,0,0] }])
 
+  //Items
+
+  const placeObject = (e) => {
+    if (!placementMode) return
+    
+    if (placementMode == "room") placeRoom(e)
+    else placeItem(e)
+  }
+
+  const deleteObject = () => {
+    if (state.label == "room") deleteRoom()
+    else deleteItem()
+  }
+
   const addItemPlacement = (itemName) => {
     state.current = null
     setPlacementMode(itemName)
   }
 
   const placeItem = (e) => {
-    if (!placementMode) return
-
     const pos = e.point
     const tempItems = [...items]
     const id = uuidv4()
@@ -55,9 +67,62 @@ const Floorplanner = () => {
       return filteredItems
     })
     state.current = null
+    state.label = null
+  }
+
+  //Rooms
+
+  const addRoomPlacement = () => {
+    state.current = null
+    setPlacementMode("room")
+  }
+
+  const placeRoom = (e) => {
+    const pos = e.point
+    const tempRooms = [...rooms]
+    const id = uuidv4()
+    tempRooms.push({
+      id: id,
+      pos: [
+        pos.x,
+        pos.y < 0 ? 0 : pos.y,
+        pos.z
+      ]
+    })
+    setRooms(tempRooms)
+    setPlacementMode(null)
+
+    state.current = id
+  }
+
+  const deleteRoom = () => {
+    const id = snap.current
+    setRooms( prevItems => {
+      const filteredItems = prevItems.filter((item) => item.id !== id)
+      return filteredItems
+    })
+    state.current = null
+    state.label = null
   }
 
   // Leva Controls
+  const { trimWalls, wallColor } = useControls('Rooms',
+    {
+      "Add Room": button(() => {
+        addRoomPlacement()
+      }),
+      trimWalls: {
+        label: "Trim Walls",
+        value: false
+      },
+      wallColor: {
+        label: "Walls Color",
+        value: '#DDDDAA'
+      }
+    },
+    { collapsed: false},
+    [addRoomPlacement]
+  )
   useControls('Items',
     {
       "File Cabinet": button(() => {
@@ -66,7 +131,9 @@ const Floorplanner = () => {
       "Office Chair": button(() => {
         addItemPlacement("office_chair")
       }),
-    }, [addItemPlacement]
+    },
+    { collapsed: true}, 
+    [addItemPlacement]
   )
   useControls('Gizmo',
     {
@@ -83,7 +150,9 @@ const Floorplanner = () => {
   // Update HUD text
   useEffect(()=>{
     if (snap.current) {
-      setHudText("Transform Item. Use button or spacebar to toggle gizmo.")
+      if (!snap.label) return
+      const itemName = snap.label.split("_").join(" ")
+      setHudText(`${itemName}: Use button or spacebar to toggle gizmo.`)
       return
     }
     if (placementMode) {
@@ -95,11 +164,13 @@ const Floorplanner = () => {
     setHudText("")
   }, [snap, placementMode])
 
+  const gizmoModes = state.label == "room" ? 3 : 2
+
   // Keyboard Events
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.code === 'Space') {
-        state.mode = state.mode === 0 ? 1 : 0;
+        state.mode = state.mode + 1 < gizmoModes ? state.mode += 1 : state.mode = 0;
       }
     }
   
@@ -108,7 +179,8 @@ const Floorplanner = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snap])
   
   return (
     <div style={{ width: "100%", height: "100%" }}>
@@ -121,7 +193,7 @@ const Floorplanner = () => {
           <ambientLight intensity={0.3} />
           <directionalLight intensity={0.9} position={[1,8,1]} castShadow />
           
-          <Ground placeItem={placeItem} placementMode={placementMode} />
+          <Ground placeObject={placeObject} placementMode={placementMode} />
           
           {items.map(item=>(
             <Item 
@@ -139,6 +211,8 @@ const Floorplanner = () => {
               id={room.id}
               pos={room.pos}
               state={state}
+              trimWalls={trimWalls}
+              color={wallColor}
             />
           ))}
 
@@ -148,9 +222,9 @@ const Floorplanner = () => {
       {snap.current && 
         <button 
           className="hud-gizmo"
-          onClick={() => state.mode == 0 ? state.mode = 1 : state.mode = 0 }
+          onClick={() => state.mode + 1 < gizmoModes ? state.mode += 1 : state.mode = 0 }
         >
-          {snap.mode == 0 ? "Translate" : "Rotate"}
+          {snap.mode === 0 ? "Translate" : snap.mode == 1 ? "Rotate" : "Scale"}
         </button>
       }
 
@@ -159,7 +233,7 @@ const Floorplanner = () => {
       <div className="hud-buttons">
         {snap.current && 
           <button 
-            onClick={deleteItem}
+            onClick={deleteObject}
             style={{ backgroundColor: "rgba(222,222,222,.1)", padding: "5px" }}
           >
             <img src="./trash.svg" alt="Delete" style={{width:"32px", height:"32px"}} />

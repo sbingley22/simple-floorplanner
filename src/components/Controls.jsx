@@ -16,7 +16,7 @@ const Controls = ({ state, modes }) => {
           object={scene.getObjectByName(snap.current)} 
           mode={modes[snap.mode]}
           showX={modes[snap.mode] == "rotate" ? false : true}
-          showY={modes[snap.mode] == "translate" ? false : true}
+          showY={modes[snap.mode] == "translate" || modes[snap.mode] == "scale" ? false : true}
           showZ={modes[snap.mode] == "rotate" ? false : true}
         />
       )}
@@ -25,8 +25,8 @@ const Controls = ({ state, modes }) => {
         makeDefault 
         minPolarAngle={0.0} 
         maxPolarAngle={Math.PI / 2.75}
-        minDistance={2.5}
-        maxDistance={8}
+        minDistance={8}
+        maxDistance={15}
       />
     </>
   )
