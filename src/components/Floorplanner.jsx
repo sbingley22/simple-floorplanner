@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react/no-unknown-property */
 import { Canvas } from "@react-three/fiber"
 import { Suspense, useEffect, useRef, useState } from "react"
@@ -9,19 +10,72 @@ import { button, useControls } from "leva"
 import Ground from "./Ground"
 import Room from "./Room"
 import { Environment } from "@react-three/drei"
+import SaveData from "./SaveData"
 
 // Reactive state model, using Valtio ...
 const modes = ['translate', 'rotate', 'scale']
 const state = proxy({ current: null, mode: 1, label: null })
 
-const Floorplanner = () => {
+const Floorplanner = ({ level }) => {
   const canvasRef = useRef()
   const snap = useSnapshot(state)
   const [hudText, setHudText] = useState("")
 
   const [placementMode, setPlacementMode] = useState(null)
-  const [items, setItems] = useState([{ id: uuidv4(), pos: [4,0,0], name: "door" }])
-  const [rooms, setRooms] = useState([{ id: uuidv4(), pos: [0,0,0] }])
+  const [items, setItems] = useState([{ id: uuidv4(), name: "door", pos: [4,0,0], rot: [0,0,0] }])
+  const [rooms, setRooms] = useState([{ id: uuidv4(), pos: [0,0,0], rot: [0,0,0], scl: [1,1,1] }])
+
+  const [activateSave, setActivateSave] = useState(false)
+  const saveData = (data) => {
+    const tempItems = []
+    const tempRooms = []
+
+    const objects = data.children
+    objects.forEach( object => {
+      if (!object.label) return
+
+      const pos = [object.position.x, object.position.y, object.position.z]
+      const rot = [object.rotation.x, object.rotation.y, object.rotation.z]
+      const scl = [object.scale.x, object.scale.y, object.scale.z]
+
+      if (object.label === "room") {
+        tempRooms.push({
+          pos: pos,
+          rot: rot,
+          scl: scl
+        })
+      } else {
+        tempItems.push({
+          name: object.label,
+          pos: pos,
+          rot: rot,
+        })
+      }
+    })
+
+    const saveLog = {
+      label: "new save",
+      rooms: tempRooms,
+      items: tempItems
+    }
+    console.log(saveLog)
+  }
+
+  // Load Level
+  useEffect(() => {
+    //console.log(level)
+    const tempItems = []
+    level.items.forEach( item => {
+      tempItems.push({
+        id: uuidv4(),
+        name: item.name,
+        pos: item.pos,
+        rot: item.rot,
+      })
+    })
+    setItems(tempItems)
+
+  }, [level])
 
   //Items
   const placeObject = (e) => {
@@ -52,7 +106,8 @@ const Floorplanner = () => {
         pos.x,
         pos.y < 0 ? 0 : pos.y,
         pos.z
-      ]
+      ],
+      rot: [0,0,0]
     })
     setItems(tempItems)
     setPlacementMode(null)
@@ -158,10 +213,10 @@ const Floorplanner = () => {
       "Office Chair": button(() => {
         addItemPlacement("office_chair")
       }),
+      // "Plant Pot": button(() => {
+      //   addItemPlacement("plantpot1")
+      // }),
       "Plant Pot": button(() => {
-        addItemPlacement("plantpot1")
-      }),
-      "Plant Pot 2": button(() => {
         addItemPlacement("plantpot2")
       }),
       "Refridgerator": button(() => {
@@ -179,10 +234,10 @@ const Floorplanner = () => {
       "Toilet": button(() => {
         addItemPlacement("toilet")
       }),
+      // "Tree": button(() => {
+      //   addItemPlacement("tree1")
+      // }),
       "Tree": button(() => {
-        addItemPlacement("tree1")
-      }),
-      "Tree 2": button(() => {
         addItemPlacement("tree2")
       }),
       "TV Stand": button(() => {
@@ -200,17 +255,6 @@ const Floorplanner = () => {
     },
     { collapsed: true}, 
     [addItemPlacement]
-  )
-  useControls('Gizmo',
-    {
-      translate: button(() => {
-        state.mode = 0
-      }),
-      rotate: button(() => {
-        state.mode = 1
-      }),
-    },
-    { collapsed: true}
   )
 
   // Update HUD text
@@ -247,6 +291,10 @@ const Floorplanner = () => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [snap])
+
+  const viewSwapper = () => {
+
+  }
   
   return (
     <div style={{ width: "100%", height: "100%" }}>
@@ -255,6 +303,8 @@ const Floorplanner = () => {
         shadows
       >
         <Suspense>
+
+          <SaveData saveData={saveData} activateSave={activateSave} />
 
           <Controls state={state} modes={modes} />
 
@@ -280,6 +330,7 @@ const Floorplanner = () => {
               id={item.id}
               name={item.name}
               pos={item.pos}
+              rot={item.rot}
               state={state}
             />
           ))}
@@ -289,6 +340,8 @@ const Floorplanner = () => {
               key={room.id}
               id={room.id}
               pos={room.pos}
+              rot={room.rot}
+              scl={room.scale}
               state={state}
               trimWalls={trimWalls}
               color={wallColor}
@@ -312,6 +365,21 @@ const Floorplanner = () => {
       <p className="hud-text">{hudText}</p>
 
       <div className="hud-buttons">
+
+        <button 
+          onClick={()=>setActivateSave(prev => !prev)}
+          style={{ backgroundColor: "rgba(222,222,222,.1)", padding: "5px" }}
+        >
+          <img src="./file.svg" alt="Save" style={{width:"32px", height:"32px"}} />
+        </button>
+
+        <button 
+          onClick={viewSwapper}
+          style={{ backgroundColor: "rgba(222,222,222,.1)", padding: "5px" }}
+        >
+          <img src="./eye-outline.svg" alt="2D3D" style={{width:"32px", height:"32px"}} />
+        </button>
+
         {snap.current && 
           <button 
             onClick={deleteObject}
@@ -320,6 +388,7 @@ const Floorplanner = () => {
             <img src="./trash.svg" alt="Delete" style={{width:"32px", height:"32px"}} />
           </button>
         }
+
       </div>
 
     </div>

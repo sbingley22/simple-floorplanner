@@ -3,7 +3,7 @@
 import { Box, Plane } from "@react-three/drei"
 import { useRef } from "react"
 
-const Room = ({ id, pos, state, trimWalls, floorColor, color, placementMode }) => {
+const Room = ({ id, pos, rot, scl, state, trimWalls, floorColor, color, placementMode }) => {
   const group = useRef()
 
   const meshClicked = (e) => {

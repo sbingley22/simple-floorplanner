@@ -14,6 +14,12 @@ body {
   padding: 0;
 }
 
+.main-menu {
+  display: grid;
+  grid-template-rows: 60px 1fr 2fr;
+  height: 100%;
+}
+
 .hud-gizmo {
   position: absolute;
   top: 10px;
