@@ -2,11 +2,27 @@
 import { useThree } from '@react-three/fiber'
 import { OrbitControls, TransformControls } from '@react-three/drei'
 import { useSnapshot } from 'valtio'
+import { useEffect } from 'react'
 
-const Controls = ({ state, modes }) => {
+const Controls = ({ state, modes, view }) => {
   // Get notified on changes to state
   const snap = useSnapshot(state)
   const scene = useThree((state) => state.scene)
+  const { camera } = useThree()
+
+  useEffect(()=>{
+    if (view == 1) {
+      camera.rotation.set(-Math.PI / 2, 0, 0)
+      camera.position.set(0, 10, 0)
+      camera.lookAt(0, 0, 0.1)
+      camera.updateProjectionMatrix()
+    } else {
+      //camera.position.set(5, 5, 0)
+      //camera.updateProjectionMatrix()
+    }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[view])
 
   return (
     <>
@@ -30,6 +46,7 @@ const Controls = ({ state, modes }) => {
         maxPolarAngle={Math.PI / 2.75}
         minDistance={8}
         maxDistance={15}
+        enableRotate={view == 0 ? true : false}
       />
     </>
   )

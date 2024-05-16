@@ -20,6 +20,7 @@ const Floorplanner = ({ level }) => {
   const canvasRef = useRef()
   const snap = useSnapshot(state)
   const [hudText, setHudText] = useState("")
+  const [view, setView] = useState(0)
 
   const [placementMode, setPlacementMode] = useState(null)
   const [items, setItems] = useState([{ id: uuidv4(), name: "door", pos: [4,0,0], rot: [0,0,0] }])
@@ -174,7 +175,7 @@ const Floorplanner = ({ level }) => {
       },
       floorColor: {
         label: "Floor Color",
-        value: '#BBAAAA'
+        value: '#625353'
       },
       wallColor: {
         label: "Walls Color",
@@ -293,7 +294,7 @@ const Floorplanner = ({ level }) => {
   }, [snap])
 
   const viewSwapper = () => {
-
+    setView(view == 0 ? 1 : 0)
   }
   
   return (
@@ -306,7 +307,7 @@ const Floorplanner = ({ level }) => {
 
           <SaveData saveData={saveData} activateSave={activateSave} />
 
-          <Controls state={state} modes={modes} />
+          <Controls state={state} modes={modes} view={view} />
 
           <Environment 
             preset="forest" 
@@ -367,17 +368,17 @@ const Floorplanner = ({ level }) => {
       <div className="hud-buttons">
 
         <button 
+          onClick={viewSwapper}
+          style={{ backgroundColor: `rgba(222,222,222,${view===0?".1":"0.9"})`, padding: "5px" }}
+        >
+          <img src="./eye-outline.svg" alt="2D3D" style={{width:"32px", height:"32px"}} />
+        </button>
+
+        <button 
           onClick={()=>setActivateSave(prev => !prev)}
           style={{ backgroundColor: "rgba(222,222,222,.1)", padding: "5px" }}
         >
           <img src="./file.svg" alt="Save" style={{width:"32px", height:"32px"}} />
-        </button>
-
-        <button 
-          onClick={viewSwapper}
-          style={{ backgroundColor: "rgba(222,222,222,.1)", padding: "5px" }}
-        >
-          <img src="./eye-outline.svg" alt="2D3D" style={{width:"32px", height:"32px"}} />
         </button>
 
         {snap.current && 

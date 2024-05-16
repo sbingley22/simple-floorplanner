@@ -16,7 +16,7 @@ const Ground = ({ placeObject, placementMode }) => {
         position-y={-0.001}
         scale={[scale * 0.9, scale, 1]}
         rotation-x={-Math.PI/2} 
-        material-color="#998877"
+        material-color="#697144"
         receiveShadow
         onClick={placementMode && handleClick}
       />

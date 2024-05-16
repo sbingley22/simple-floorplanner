@@ -25,20 +25,33 @@ body {
   top: 10px;
   left: 10px;
   font-size: x-large;
+  padding: 5px 10px;
+  border-radius: 15px;
+  color: green;
+  background-color: antiquewhite;
 }
 
 .hud-text {
   position: absolute;
   bottom: 10px;
-  left: 10px;
+  right: 10px;
   font-size: large;
   user-select: none;
   pointer-events: none;
+  stroke: 1px black;
+  /* -webkit-text-stroke: 1px black; */
+  background-color: rgba(11, 11, 11, 0.5);
+  padding: 0 5px;
+  border-radius: 6px;
 }
 
 .hud-buttons {
   position: absolute;
   bottom: 10px;
-  right: 10px;
+  left: 10px;
   font-size: large;
+}
+
+.hud-buttons button {
+  margin: 0 10px;
 }
