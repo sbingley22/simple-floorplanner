@@ -293,6 +293,19 @@ const Floorplanner = ({ level }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [snap])
 
+  // Disable mobile touch defaults
+  useEffect(() => {
+    document.body.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+    }, { passive: false });
+
+    return () => {
+      document.body.removeEventListener('touchmove', function(e) {
+        e.preventDefault();
+      }, { passive: false });
+    };
+  }, []);
+
   const viewSwapper = () => {
     setView(view == 0 ? 1 : 0)
   }
